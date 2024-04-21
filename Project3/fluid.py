@@ -54,6 +54,5 @@ class Fluid():
                 except Exception as e:
                     raise ValueError(f"Error in calculating property: {e}")
             return property_method
-                
-            
+
         raise AttributeError(f"'{self.__class__.__name__}' object has no attribute '{property_name}'")
