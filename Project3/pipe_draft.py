@@ -86,14 +86,13 @@ triple_pressure = co2.triple_pressure()
 co2_triple_density = co2.density(T=triple_temp, P=triple_pressure)
 
 def solve_finite_element_method(mdot, state_in, length, T_external, radius, direction):
-    gravity = 9.81 if direction == 'down' else -9.81
     v_in = mdot / (state_in.rho * np.pi * radius**2)
     h_l = head_loss(v_in,co2.viscosity(D=state_in.rho,H=state_in.h) , length,2*radius)
     T_in = co2.temperature(D=state_in.rho,H=state_in.h)
     q_in = tr_pipe(length) * (T_external - T_in) / mdot
     # mechanical energy
     p_in = co2.pressure(D = state_in.rho, H = state_in.h)
-    me_lhs = p_in / state_in.rho + 0.5 * v_in**2 + gravity * state_in.z
+    me_lhs = p_in / state_in.rho + 0.5 * v_in**2 + 9.81 * state_in.z
     
     # thermal energy
     u1 = state_in.h - p_in / state_in.rho
@@ -113,8 +112,8 @@ def solve_finite_element_method(mdot, state_in, length, T_external, radius, dire
             return np.Inf
         v_out = state_in.rho * v_in / rho_out
         u_out = h_out - p_out / rho_out
-        me_loss = p_out / rho_out + 0.5 *(v_out)**2 + gravity * z_out - gravity * h_l - me_lhs
-        heat_loss = u1 + q_in + gravity * h_l - u_out
+        me_loss = p_out / rho_out + 0.5 *(v_out)**2 + 9.81 * z_out - 9.81 * h_l - me_lhs
+        heat_loss = u1 + q_in + 9.81 * h_l - u_out
         return me_loss**2 + heat_loss**2
     
     # solve for rho_out, h_out
