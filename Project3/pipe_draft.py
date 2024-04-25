@@ -127,35 +127,19 @@ def solve_finite_element_method(mdot, state_in, length, T_external, radius, dire
     
     return State(h_out, z_out, rho_out)
 
-# %%
-pipe_length = 3.2e3
-aquifer_length = 112 - 70
-num_segments = 250
-segment_length = pipe_length / num_segments
-num_segments = int(num_segments)
-surface_temp = 10 + 273 # C
-temp_gradient = 62.5 # C/km
-temp = lambda z: surface_temp - temp_gradient * z / 1e3
 
-
-heights_down = np.linspace(0,-pipe_length,num_segments)
-heights_up = np.linspace(-pipe_length,0,num_segments)
-#combine the heights
-total_height = np.concatenate((heights_down, heights_up))
-enthalpies = np.zeros_like(total_height)
-densities = np.zeros_like(total_height)
 
 # plot the temperature profile
 def calculate_pipe_properties(temp_in,pressure_in, mdot=10,
                             pipe_length = 3.2e3,
                             aquifer_length = 112 - 70,
                             num_segments = 250,
-                            segment_length = pipe_length / num_segments,
                             surface_temp = 10 + 273, # C
                             temp_gradient = 62.5, # C/km
     ):
-    num_segments = int(num_segments)
    
+    segment_length = pipe_length / num_segments
+    num_segments = int(num_segments)
     temp = lambda z: surface_temp - temp_gradient * z / 1e3
 
 
@@ -166,6 +150,7 @@ def calculate_pipe_properties(temp_in,pressure_in, mdot=10,
     enthalpies = np.zeros_like(total_height)
     densities = np.zeros_like(total_height)
     state_in = State(h=co2.enthalpy(T=temp_in,P=pressure_in), z=0, rho=co2.density(T=temp_in,P=pressure_in))
+    
     for i,h in tqdm(enumerate(heights_down), total=num_segments, desc="Descending"):
         state_out = solve_finite_element_method(3.24+mdot, state_in, segment_length, temp(h), r_internal,direction='down')
         enthalpies[i] = state_out.h
